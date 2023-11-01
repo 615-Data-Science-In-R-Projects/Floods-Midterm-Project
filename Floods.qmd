@@ -4,11 +4,39 @@ format: html
 editor: visual
 ---
 
+```{r}
+#Intializing relevant libraries
+
+library(tidyverse)
+```
+
 ## Introduction
 
 ## Data Cleaning
+
 ```{r}
 #Reading in the data from NOAA
+storms<- read.csv("StormEvents_details_2021.csv")
 
+#Filtering so that we only look at storms:
+floods_raw<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
 
 ```
+ So immediately, a few things stand out: the way the dates are coded and the fact that they're coded twice and differently. 
+ What I'll shoot for here is to have dates as month, day and time and also as a single datetime
+ 
+```{r}
+#floods_date_time<- floods_raw |> select(-c(BEGIN_YEARMONTH,BEGIN_DAY,BEGIN_TIME,
+                                          # END_YEARMONTH,END_DAY,END_TIME))
+
+#What's the best way to clean time here? I might leave it till the EDA to see what makes it easiest there
+
+floods_date_time<- floods_date_time |> mutate(BEGIN_MONTH=)
+
+#What will need to be done is to make all the times the same timezone using a series of ifelse statements
+```
+ 
+After dates, the damages columns need fixing.  
+
+
+ 
