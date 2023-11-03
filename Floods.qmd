@@ -19,7 +19,7 @@ library(tidyverse)
 storms<- read.csv("StormEvents_details_2021.csv")
 
 #Filtering so that we only look at storms:
-floods_raw<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
+floods<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
 
 ```
  So immediately, a few things stand out: the way the dates are coded and the fact that they're coded twice and differently. 
@@ -38,5 +38,36 @@ floods_date_time<- floods_date_time |> mutate(BEGIN_MONTH=)
  
 After dates, the damages columns need fixing.  
 
+```{r, echo=FALSE}
+#Property damage
+
+#First lets check if there are any entries in property damage that don't end in
+#either K or M
+floods$DAMAGE_PROPERTY<- str_trim(floods$DAMAGE_PROPERTY, side="both")
+dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
+                       str_detect(DAMAGE_PROPERTY,"M")==TRUE))[1]
+
+#This isn't the same as the number of rows in floods. A little messing around
+#tells us that this is because some values are NA. 
+
+#So now we know that every entry in this column ends in k or m or is NA, we can 
+#retrieve the number and conditionally multiply by 1000 or a million
+
+floods$DAMAGE_PROPERTY<- ifelse(str_detect(floods$DAMAGE_PROPERTY,"K")==TRUE,
+                    as.numeric(str_sub(floods$DAMAGE_PROPERTY,0,-2))*1000,
+                    ifelse(str_detect(floods$DAMAGE_PROPERTY,"M")==TRUE,
+                    as.numeric(str_sub(floods$DAMAGE_PROPERTY,0,-2))*1000000,
+                    NA))
+
+#We can do the same for crop_damage
+
+floods$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
+                    as.numeric(str_sub(floods$DAMAGE_CROPS,0,-2))*1000,
+                    ifelse(str_detect(floods$DAMAGE_CROPS,"M")==TRUE,
+                    as.numeric(str_sub(floods$DAMAGE_CROPS,0,-2))*1000000,
+                    NA))
+
+
+```
 
  
