@@ -15,3 +15,19 @@ fema_assistance<- read.csv("FemaWebDisasterSummaries.csv", header = TRUE)
 
 fema_combined<- left_join(x=fema_floods,y=fema_assistance, by="disasterNumber")
 
+census1_2020<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Data.csv")
+census1_metadata<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Column-Metadata.csv")
+
+census1_estimates_2020<- census1 |>
+        select(colnames(census1)[which(str_sub(colnames(census1),-1,-1)=="E" |
+                                         str_sub(colnames(census1),-1,-1)=="M")])
+
+census1_metadata_estimates<- census1_metadata |>filter(
+         str_sub(Column.Name,-1,-1)=="E"| str_sub(Column.Name,-1,-1)=="M")
+
+
+census2_2020<- read.csv("Census Download_2023-10-23T140133/ACSDP5Y2020.DP05-Data.csv")
+census2_metadata<- read.csv("Census Download_2023-10-23T140133/ACSDP5Y2020.DP05-Column-Metadata.csv")
+
+census3_2020<- read.csv("Census Download_2023-10-23T140147/ACSDT5Y2020.B25001-Data.csv")
+census3_metadata<- read.csv("Census Download_2023-10-23T140147/ACSDT5Y2020.B25001-Column-Metadata.csv")

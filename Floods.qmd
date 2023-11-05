@@ -29,11 +29,25 @@ floods<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
 #floods_date_time<- floods_raw |> select(-c(BEGIN_YEARMONTH,BEGIN_DAY,BEGIN_TIME,
                                           # END_YEARMONTH,END_DAY,END_TIME))
 
-#What's the best way to clean time here? I might leave it till the EDA to see what makes it easiest there
+#We'll start by cleaning begin date and end date to date-time format so we can join with the fema data
 
-floods_date_time<- floods_date_time |> mutate(BEGIN_MONTH=)
+floods1<- floods |> mutate(incidentBeginDate= 
+            dmy(str_sub(BEGIN_DATE_TIME,1,
+          str_locate(BEGIN_DATE_TIME," ")[2])),.before =BEGIN_DATE_TIME)
 
-#What will need to be done is to make all the times the same timezone using a series of ifelse statements
+floods1<- floods1 |> mutate(incidentEndDate= 
+            dmy(str_sub(END_DATE_TIME,1,
+          str_locate(END_DATE_TIME," ")[2])),.before =END_DATE_TIME)
+
+#We can also add a time column. We'll adjust this for timezones later
+
+floods1<- floods1 |> mutate(incidentBeginTime = 
+          hms(str_sub(BEGIN_DATE_TIME,
+          str_locate(BEGIN_DATE_TIME," ")[2],)), .before=BEGIN_DATE_TIME)
+
+floods1<- floods1 |> mutate(incidentEndTime = 
+          hms(str_sub(END_DATE_TIME,
+          str_locate(END_DATE_TIME," ")[2],)), .before=END_DATE_TIME)
 ```
  
 After dates, the damages columns need fixing.  
@@ -67,7 +81,38 @@ floods$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
                     as.numeric(str_sub(floods$DAMAGE_CROPS,0,-2))*1000000,
                     NA))
 
+```
+
+Let's join the floods data with the combined fema data:
+
+```{r, echo=FALSE}
+fema<- read_csv("DisasterDeclarationsSummaries.csv")
+fema_floods<- fema |> filter(str_detect(incidentType, "Flood")==TRUE) |> 
+                  filter(str_detect(incidentBeginDate,"2021")==TRUE)
+
+fema_assistance<- read.csv("FemaWebDisasterSummaries.csv", header = TRUE)
+fema_combined<- suppressWarnings(left_join(x=fema_floods,y=fema_assistance, by="disasterNumber"))
+
+fema_combined<-fema_combined |> select(-c(lastRefresh.x,lastRefresh.y,hash.x,hash.y,id.x, id.y))
+
+#We'll start by trying to join by begin and end dates. 
+
+floods_fema_combined<- left_join(x=floods1, y=fema_combined, by="incidentBeginDate")
+
+#removing redundant columns
+
+floods_fema_combined<-floods_fema_combined |> select(-c(BEGIN_YEARMONTH:END_TIME,YEAR,MONTH_NAME,MAGNITUDE,
+                                  MAGNITUDE_TYPE,CATEGORY:TOR_OTHER_CZ_NAME))
+
+#Filtering out columns for which we don't have fema data
+
+floods_fema_combined_noNA<- floods_fema_combined |>
+  filter(is.na(declarationType)==FALSE)
+```
+
+We can also join this data with poverty data from the census. This data has to be cleaned first:
+
+```{r}
 
 ```
 
- 
