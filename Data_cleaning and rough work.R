@@ -41,5 +41,6 @@ col_names<- str_replace_all(col_names,"!!", " ")
 col_names<- str_replace_all(col_names,"Total Population for whom poverty status is determined",
                                        "Total Population")
 
-col_names<- ifelse(col_names)
+col_names<- ifelse(str_detect(col_names,"AGE")==TRUE,str_replace(col_names,
+  "Population for whom poverty status is determined AGE", "AGE"),col_names)
 col_names_frame<- data.frame(col_names)
