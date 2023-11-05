@@ -44,3 +44,11 @@ col_names<- str_replace_all(col_names,"Total Population for whom poverty status 
 col_names<- ifelse(str_detect(col_names,"AGE")==TRUE,str_replace(col_names,
   "Population for whom poverty status is determined AGE", "AGE"),col_names)
 col_names_frame<- data.frame(col_names)
+
+#Replacing age subcategorizations because they're redundant
+col_names<-ifelse(str_detect(colnames,"Under 18 years")==TRUE,
+                  str_replace(col_names,"Under 18 years",""),
+                  ifelse(str_detect(colnames,"18 to 64 years")==TRUE,
+                         str_replace(col_names,"18 to 64 years","" ),
+                  ))
+                                                                             ))
