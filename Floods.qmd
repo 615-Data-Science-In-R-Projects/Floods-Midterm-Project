@@ -86,22 +86,24 @@ floods$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
 Let's join the floods data with the combined fema data:
 
 ```{r, echo=FALSE}
-fema<- read_csv("DisasterDeclarationsSummaries.csv")
+fema<- suppressWarnings(read_csv("DisasterDeclarationsSummaries.csv"))
 fema_floods<- fema |> filter(str_detect(incidentType, "Flood")==TRUE) |> 
                   filter(str_detect(incidentBeginDate,"2021")==TRUE)
 
-fema_assistance<- read.csv("FemaWebDisasterSummaries.csv", header = TRUE)
+fema_assistance<- suppressWarnings(read.csv("FemaWebDisasterSummaries.csv", header = TRUE))
 fema_combined<- suppressWarnings(left_join(x=fema_floods,y=fema_assistance, by="disasterNumber"))
 
 fema_combined<-fema_combined |> select(-c(lastRefresh.x,lastRefresh.y,hash.x,hash.y,id.x, id.y))
 
 #We'll start by trying to join by begin and end dates. 
 
-floods_fema_combined<- left_join(x=floods1, y=fema_combined, by="incidentBeginDate")
+floods_fema_combined<- suppressWarnings(
+  left_join(x=floods1, y=fema_combined, by="incidentBeginDate"))
 
 #removing redundant columns
 
-floods_fema_combined<-floods_fema_combined |> select(-c(BEGIN_YEARMONTH:END_TIME,YEAR,MONTH_NAME,MAGNITUDE,
+floods_fema_combined<-floods_fema_combined |> 
+  select(-c(BEGIN_YEARMONTH:END_TIME,YEAR,MONTH_NAME,MAGNITUDE,
                                   MAGNITUDE_TYPE,CATEGORY:TOR_OTHER_CZ_NAME))
 
 #Filtering out columns for which we don't have fema data
