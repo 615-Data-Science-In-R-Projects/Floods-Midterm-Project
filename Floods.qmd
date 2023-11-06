@@ -13,6 +13,8 @@ engine: knitr
 
 library(tidyverse)
 library(ggplot2)
+library(knitr)
+library(kableExtra)
 ```
 
 # Introduction
@@ -105,6 +107,7 @@ Let's join the floods data with the combined fema data:
 ```{r}
 #| echo: false
 #| warning: false
+#| message: false
 fema<- suppressWarnings(read_csv("DisasterDeclarationsSummaries.csv"))
 fema_floods<- fema |> filter(str_detect(incidentType, "Flood")==TRUE) |> 
                   filter(str_detect(incidentBeginDate,"2021")==TRUE|
@@ -242,8 +245,9 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis if we want to have that focus geographically. 
 ```{r}
 #| echo: false
-f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(NumberOfFloods = n)
-print(f[1:12,])
+f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(`Number Of Floods` = n)
+f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 & 2021") %>%
+  kable_classic(full_width = F)
 ```
 We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happen in non-coastal states. 
 What's interesting here is that South Dakota has a large number of flood events. So do Kentucy, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota later. 
