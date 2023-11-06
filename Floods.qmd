@@ -316,11 +316,12 @@ comparisons_state_groups<- floods_fema_census |> filter(State %in% state_list) |
   group_by(State) |> summarize(
     deaths=sum(DEATHS_DIRECT+DEATHS_INDIRECT),
     prop_damage = sum(DAMAGE_PROPERTY),
-    crop_damage=sum(DAMAGE_CROPS)
-  ) |> mutate()
+    crop_damage=sum(DAMAGE_CROPS, .keepall=TRUE)
+  ) |> mutate(poorer_areas_flooded = ifelse(State %in% poor_list),1,0)
 
 #It would appear that the data for property and crop damage for Florida is NA. These values are also zero for some other states. 
 
-ggplot(co)
+ggplot(comparisons_state_groups, aes(State,log(prop_damage)))+
+  geom_point()
 ```
 
