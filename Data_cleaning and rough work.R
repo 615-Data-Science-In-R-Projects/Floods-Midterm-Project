@@ -1,5 +1,6 @@
 library(tidyverse)
 library(readr)
+library(ggplot2)
 
 storms<- read_csv("StormEvents_details_2021.csv")
 
@@ -67,3 +68,10 @@ col_names<- str_replace(col_names,
     "UNRELATED INDIVIDUALS FOR WHOM POVERTY STATUS IS DETERMINED", "UNRELATED INDIVIDUALS")
 col_names<- str_replace(col_names,"Population 25 years and over","")
 col_names<- str_replace(col_names,"Civilian labor force 16 years and over","")
+
+
+
+#Let's start by looking at floods per state:
+
+floods_fema_census |> group_by(STATE) |> count(STATE) |> arrange(desc(n))
+
