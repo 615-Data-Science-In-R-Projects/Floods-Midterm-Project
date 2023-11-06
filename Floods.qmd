@@ -276,18 +276,21 @@ We can see that most of these states, barring Iowa, are above the US Percent of 
 state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
                "ILLINOIS", "IOWA","NEW YORK", "INDIANA", "FLORIDA")
 
+poverty_noNA<- floods_fema_census |> filter(
+  is.na(`Estimate Below poverty level `)==FALSE& 
+    is.na(`Estimate Total Population`)==FALSE)
 
-poverty_level<-floods_fema_census |> 
-  filter(State %in% state_list) |> group_by(State) |> summarise(`Below poverty level` =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100)
+poverty_level<-poverty_noNA |> 
+  filter(State %in% state_list) |> group_by(State) |> summarise(`Below poverty level` =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100) |> mutate(
+    poverty_diff= `Below poverty level`- state_poverty_level$`Below poverty level`
+  )
 
-ggplot(poverty_level, aes(State, `Below poverty level`))+
-  geom_bar(stat="identity", fill="#8FA8F9")+coord_cartesian(ylim=c(10,18))+
+ggplot(poverty_level, aes(State, poverty_diff))+
+  geom_bar(stat="identity", fill="#8FA8F9")+#coord_cartesian(ylim=c(10,18))+
   theme_classic()+
-  labs(title="Percent of population below poverty level by State", 
-       y= "Percent below poverty level", x= "State")+
-  geom_hline(yintercept=11.5, color='red')+
-  annotate("text", x="Kentucky",
-           y=11.8, label="US Percent below poverty level = 11.5%")+
+  labs(title="Poverty levels for flooded areas relative to the Whole State", 
+       y= "Difference in Percent below poverty level", x= "State")+
+  geom_hline(yintercept=0, color='red')+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
-
+We can see that there are a few states here where the 
