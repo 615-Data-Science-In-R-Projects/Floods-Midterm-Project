@@ -253,7 +253,7 @@ So we can start by just looking at the number of flood events in each state over
 ```{r}
 #| echo: false
 f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(`Number Of Floods` = n)
-f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 & 2021") %>%
+f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 and 2021") %>%
   kable_classic(full_width = F)
 ```
 We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happened in non-coastal states in 2020 and 2021.
