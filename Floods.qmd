@@ -260,7 +260,7 @@ We have coastal states like New York and West Virginia represented but it would 
 
 What's interesting here is that South Dakota has a large number of flood events. So do Kentucky, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota at some other point. 
 
-### Poverty across States and Flooded Areas
+### EDA - Intial Scouting (Noah looking out from the Ark)
 Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated in Table 1. 
 
 ```{r}
@@ -312,12 +312,11 @@ ggplot(poverty_level, aes(State, poverty_diff))+
   geom_hline(yintercept=0, color='red')+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
-There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. Instead let's look at percent of population between 300-500% of the poverty line versus those below the poverty line to see if there is a disproportionate relationship between disaster declaration and wealth. 
+There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. Instead let's look at percent of population between 300-500% of the poverty line versus those below the poverty line to see if there is a disproportionate relationship between disaster declaration and wealth. There are also many differences between states, their livelihoods, the distribution of the population. It might make sense to narrow our EDA to some states that share not just apparently similar qualities from an economic standpoint but also in the way floods have affected them in 2020-2021. 
 
-Before we get to that:
-
-Are there any trends in deaths, property damage and crop damage between these two groups of states? 
-We'll take Missouri, Tennessee and Kentucky in the former group because the margins for them are well within the limit where errors in measurement would swing them to be in the other group. 
+So:
+Are there any trends in deaths, property damage and crop damage between the two groups of states we've created above? Can this help us  
+We'll take Missouri, Tennessee and Kentucky in the former group because the margins for them are within the limit where errors in measurement would swing them to be in the other group. 
 ```{r}
 #| echo: false
 #| warning: false
@@ -390,6 +389,10 @@ ggplot(comparisons_state_groups, aes(State,Deaths))+
 ```
 The crop damage graph is almost immediately indicative of which states are more rural/rely ostensibly more on farming. What's interesting is the difference in crop damage across states. Is the crop damage higher because the flooding was more sever/more prolonged or was it because the primary crop grown there is more susceptible to flood damage?
 
-The deaths from floods in 2020-2021 were zero in most states which is great news. However it appear Tennessee really suffered, with close to 20 deaths from one flood alone. 
+The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. 
 
-By far the most interesting graph of this trifecta is the one detailing property damage.It makes sense that Florida, with coastal flooding might have had more property damage, being more densely populated. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occured across both rural and urban areas? Or is it perhpas
+By far the most interesting graph of this trifecta is the one detailing property damage.It makes sense that Florida, might have had more property damage, being more densely populated than some of these other states and more urbanized. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? 
+It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
+
+### EDA - Diluvian Details
+
