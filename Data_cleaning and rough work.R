@@ -18,9 +18,15 @@ fema_combined<- left_join(x=fema_floods,y=fema_assistance, by="disasterNumber")
 census1_2020<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Data.csv")
 census1_metadata<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Column-Metadata.csv")
 
+census1_2021<- read.csv("Census Download_2023-10-23T140147/ACSDT5Y2021.B25001-Data.csv")
+
 census1_estimates_2020<- census1_2020 |>
         select(colnames(census1_2020)[which(str_sub(colnames(census1_2020),-1,-1)=="E" |
                                          str_sub(colnames(census1_2020),-1,-1)=="M")])
+
+census1_estimates_2021<- census1_2021 |>
+  select(colnames(census1_2021)[which(str_sub(colnames(census1_2021),-1,-1)=="E" |
+                                        str_sub(colnames(census1_2021),-1,-1)=="M")])
 
 census1_metadata_estimates<- census1_metadata |>filter(
          str_sub(Column.Name,-1,-1)=="E"| str_sub(Column.Name,-1,-1)=="M")
@@ -35,7 +41,7 @@ census3_metadata<- read.csv("Census Download_2023-10-23T140147/ACSDT5Y2020.B2500
 
 colnames(census1_estimates_2020)<- census1_estimates_2020[1,]
 
-col_names<- census1_metadata_estimates$Label
+col_names<- t(census1_estimates_2020[1,])[,2]
 
 col_names<- str_replace_all(col_names,"!!", " ")
 col_names<- str_replace_all(col_names,"Total Population for whom poverty status is determined",
@@ -46,7 +52,7 @@ col_names<- str_replace_all(col_names,"Population for whom poverty status is det
 
 col_names<- ifelse(str_detect(col_names,"AGE")==TRUE,str_replace(col_names,
   "Population for whom poverty status is determined AGE", "AGE"),col_names)
-col_names_frame<- data.frame(col_names)
+col_names_frame<- data.frame(col_names)[,2]
 
 #Replacing age sub-categorizations because they're redundant
 col_names<-ifelse(str_detect(col_names,"Under 18 years")==TRUE,
@@ -56,4 +62,7 @@ col_names<-ifelse(str_detect(col_names,"Under 18 years")==TRUE,
                   col_names))
 
 col_names<- str_replace(col_names,"RACE AND HISPANIC OR LATINO ORIGIN", "RACE")
-                                                                             ))
+col_names<- str_replace(col_names,
+    "UNRELATED INDIVIDUALS FOR WHOM POVERTY STATUS IS DETERMINED", "UNRELATED INDIVIDUALS")
+col_names<- str_replace(col_names,"Population 25 years and over","")
+col_names<- str_replace(col_names,"Civilian labor force 16 years and over","")

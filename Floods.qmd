@@ -116,5 +116,70 @@ We can also join this data with poverty data from the census. This data has to b
 
 ```{r}
 
+#We start by reading in the data
+census1_2020<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Data.csv")
+census1_2021<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2021.S1701-Data.csv")
+census1_metadata<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Column-Metadata.csv")
+census_2021_metadata<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2021.S1701-Column-Metadata.csv")
+
+#We will keep the census estimates and the margins of error for each estimate
+census1_estimates_2020<- census1_2020 |>
+        select(colnames(census1_2020)[which(str_sub(colnames(census1_2020),-1,-1)=="E" |
+                                         str_sub(colnames(census1_2020),-1,-1)=="M")])
+
+census1_estimates_2021<- census1_2021 |>
+  select(colnames(census1_2021)[which(str_sub(colnames(census1_2021),-1,-1)=="E" |
+                                        str_sub(colnames(census1_2021),-1,-1)=="M")])
+
+#Differentiating the years by adding a year column
+vec_2020<- rep("2020",3222)
+vec_2021<-rep("2021",3222)
+
+census1_estimates_2020<- census1_estimates_2020 |> mutate(year=vec_2020)
+census1_estimates_2021<- census1_estimates_2021 |> mutate(year=vec_2021)
+
+#removing variables of b which aren't in a. Having looked at what these are, these aren't questions i'm interested in so I can omit them. 
+
+col_2020<-colnames(census1_estimates_2020)
+col_2021<- colnames(census1_estimates_2021)
+
+diff<- col_2021[which((col_2021%in%col_2020)==FALSE)]
+census1_estimates_2021<- census1_estimates_2021 |> select(-diff)
+census_poverty_data<- rbind(census1_estimates_2020,census1_estimates_2021)
+
+#Cleaning the column names:
+
+colnames(census_poverty_data)<- census_poverty_data[1,]
+#Removing the label so we just have column names
+census_poverty_data<-census_poverty_data[2:6444,]
+
+col_names<- colnames(census_poverty_data)
+
+col_names<- str_replace_all(col_names,"!!", " ")
+col_names<- str_replace_all(col_names,"Total Population for whom poverty status is determined",
+                                       "Total Population")
+
+col_names<- str_replace_all(col_names,"Population for whom poverty status is determined",
+                            "")
+
+col_names<- ifelse(str_detect(col_names,"AGE")==TRUE,str_replace(col_names,
+  "Population for whom poverty status is determined AGE", "AGE"),col_names)
+col_names_frame<- data.frame(col_names)
+
+#Replacing age sub-categorizations because they're redundant
+col_names<-ifelse(str_detect(col_names,"Under 18 years")==TRUE,
+                  str_replace(col_names,"Under 18 years",""),
+                  ifelse(str_detect(col_names,"18 to 64 years")==TRUE,
+                         str_replace(col_names,"18 to 64 years","" ),
+                  col_names))
+
+col_names<- str_replace(col_names,"RACE AND HISPANIC OR LATINO ORIGIN", "RACE")
+col_names<- str_replace(col_names,
+    "UNRELATED INDIVIDUALS FOR WHOM POVERTY STATUS IS DETERMINED", "UNRELATED INDIVIDUALS")
+col_names<- str_replace(col_names,"Population 25 years and over","")
+col_names<- str_replace(col_names,"Civilian labor force 16 years and over","")
+
+colnames(census_poverty_data)<- col_names
 ```
 
+Now, in order to join the census data and the floods combined data, we need to reduce the geographic area name column to just the county. Furthermore, we will rename it to have the same name as in floods. 
