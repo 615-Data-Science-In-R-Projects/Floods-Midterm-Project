@@ -72,6 +72,8 @@ After dates, the damages columns need fixing.
 
 ```{r}
 #| echo: false
+#| message: false
+#| warning: false
 
 #Property damage
 
@@ -249,19 +251,22 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 
 # EDA
 
-So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis if we want to have that focus geographically. 
+So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states.
+
 ```{r}
 #| echo: false
 f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(`Number Of Floods` = n)
 f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 and 2021") %>%
   kable_classic(full_width = F)
 ```
+
 We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happened in non-coastal states in 2020 and 2021.
 
-What's interesting here is that South Dakota has a large number of flood events. So do Kentucky, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota at some other point. 
+What's interesting here is that South Dakota has a large number of flood events. So do Kentucky, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota at some other point.
 
 ### EDA - Intial Scouting (Noah looking out from the Ark)
-Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated in Table 1. 
+
+Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated in Table 1.
 
 ```{r}
 #| echo: false
@@ -281,12 +286,13 @@ ggplot(state_poverty_level, aes(State, `Below poverty level`))+
        y= "Percent below poverty level", x= "State")+
   geom_hline(yintercept=11.5, color='red')+
   annotate("text", x="KENTUCKY",
-           y=11.8, label="US Percent below poverty level = 11.5%")+
+           y=11.8, label="Nation-wide Percent below poverty level = 11.5%")+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   
   
 ```
-We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service, Poverty in the United States 2021 and 2020) Let's see how that compares  for only those counties with flood events in 2020 or 2021. 
+
+We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service, Poverty in the United States 2021 and 2020) Let's see how that compares for only those counties with flood events in 2020 or 2021.
 
 ```{r}
 #| echo: false
@@ -307,16 +313,17 @@ poverty_level<-poverty_noNA |>
 ggplot(poverty_level, aes(State, poverty_diff))+
   geom_bar(stat="identity", fill="#8FA8F9")+#coord_cartesian(ylim=c(10,18))+
   theme_classic()+
-  labs(title="Poverty levels for areas with recorded disasters relative to the Whole State", 
+  labs(title="Poverty levels for areas with recorded disasters\n relative to the Whole State", 
        y= "Difference in Percent below poverty level", x= "State")+
   geom_hline(yintercept=0, color='red')+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
-There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. Instead let's look at percent of population between 300-500% of the poverty line versus those below the poverty line to see if there is a disproportionate relationship between disaster declaration and wealth. There are also many differences between states, their livelihoods, the distribution of the population. It might make sense to narrow our EDA to some states that share not just apparently similar qualities from an economic standpoint but also in the way floods have affected them in 2020-2021. 
 
-So:
-Are there any trends in deaths, property damage and crop damage between the two groups of states we've created above? Can this help us  
-We'll take Missouri, Tennessee and Kentucky in the former group because the margins for them are within the limit where errors in measurement would swing them to be in the other group. 
+There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. Instead let's look at percent of population between 300-500% of the poverty line versus those below the poverty line to see if there is a disproportionate relationship between disaster declaration and wealth. There are also many differences between states, their livelihoods, the distribution of the population. It might make sense to narrow our EDA to some states that share not just apparently similar qualities from an economic standpoint but also in the way floods have affected them in 2020-2021.
+
+So: Are there any trends in deaths, property damage and crop damage between the two groups of states we've created above? Can this help us\
+We'll take Missouri, Tennessee and Kentucky in the former group because the margins for them are within the limit where errors in measurement would swing them to be in the other group.
+
 ```{r}
 #| echo: false
 #| warning: false
@@ -378,21 +385,25 @@ ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
          caption = "Orange diamonds indicate the mean log Crop damage, error bars are in red")+
   facet_wrap(~poorer_areas_flooded)
   
-ggplot(comparisons_state_groups, aes(State,Deaths))+
-  geom_point(size=1, alpha=0.9)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  labs(title="Are there more deaths in states where floods \naffect areas richer than the state average",
-       y= "Deaths")+
-  facet_wrap(~poorer_areas_flooded)
 
 ```
+
 The crop damage graph is almost immediately indicative of which states are more rural/rely ostensibly more on farming. What's interesting is the difference in crop damage across states. Is the crop damage higher because the flooding was more sever/more prolonged or was it because the primary crop grown there is more susceptible to flood damage?
 
-The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. 
+The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. So this wasn't really worth visualizing.
 
-By far the most interesting graph of this trifecta is the one detailing property damage.It makes sense that Florida, might have had more property damage, being more densely populated than some of these other states and more urbanized. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? 
-It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
+By far the more interesting graph is the one detailing property damage.It makes sense that Florida, might have had more property damage, being more densely populated than some of these other states and more urbanized. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
 
-### EDA - Diluvian Details
+### EDA - Diluvial Details
 
+So, what questions has our initial exploration left us with:
+
+-   Do poorer areas get flooded more in these states than those that are wealthier?
+-   Do poorer areas get fewer funds from fema? Shouldn't they get more? Do they get more?
+-   Is property damage damage largely a function of damage to individual homes or to infrastructure?
+
+```{r}
+poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
+
+
+```
