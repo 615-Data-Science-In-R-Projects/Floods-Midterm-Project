@@ -40,8 +40,9 @@ census3_metadata<- read.csv("Census Download_2023-10-23T140147/ACSDT5Y2020.B2500
 
 
 colnames(census1_estimates_2020)<- census1_estimates_2020[1,]
+colnames(census1_estimates_2021)<- census1_estimates_2021[1,]
 
-col_names<- t(census1_estimates_2020[1,])[,2]
+col_names<- colnames(census_poverty_data)
 
 col_names<- str_replace_all(col_names,"!!", " ")
 col_names<- str_replace_all(col_names,"Total Population for whom poverty status is determined",
