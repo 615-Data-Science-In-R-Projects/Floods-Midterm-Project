@@ -414,6 +414,8 @@ hist(x=poverty_analysis$percent_poor, col="#8FA8F9", main= "Histogram of poverty
 There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder. How would we go about seeing if that is the case? We can look at the fema information. How many requests for funding came in?
 How are funds distributed across various poverty levels to a) infrastructure b) individuals assistance c) Housing Assistance. 
 
+So we'll look at the amount of money FEMA grants against the number of declarations of assistance to see if there's a trend. We'll make a plot for each of a, b and c above and see what conclusions can be drawn. 
+
 ```{r}
 #| echo: false
 #| warning: false
