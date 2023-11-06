@@ -183,3 +183,12 @@ colnames(census_poverty_data)<- col_names
 ```
 
 Now, in order to join the census data and the floods combined data, we need to reduce the geographic area name column to just the county. Furthermore, we will rename it to have the same name as in floods. 
+
+```{r}
+census_poverty_data<- census_poverty_data |> 
+              rename(County = `Geographic Area Name`)
+
+floods_fema_combined_noNA<- floods_fema_combined_noNA |> 
+                      rename(County = CZ_NAME)
+```
+
