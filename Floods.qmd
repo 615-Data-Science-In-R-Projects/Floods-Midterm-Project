@@ -118,10 +118,17 @@ fema_combined<- suppressWarnings(left_join(x=fema_floods,y=fema_assistance, by="
 
 fema_combined<-fema_combined |> select(-c(lastRefresh.x,lastRefresh.y,hash.x,hash.y,id.x, id.y))
 
+fema_combined$designatedArea<-
+   str_trim(toupper(ifelse(str_detect(fema_combined$designatedArea,"County")|str_detect(fema_combined$designatedArea,"Parish"),
+          str_sub(fema_combined$designatedArea,1,str_locate(fema_combined$designatedArea," ")),
+          fema_combined$designatedArea)),side="both")
+
+fema_combined<-fema_combined |> rename(County=designatedArea)
 #We'll start by trying to join by begin and end dates. 
 
+floods1<- floods1 |> rename(County = CZ_NAME)
 floods_fema_combined<- suppressWarnings(
-  left_join(x=floods1, y=fema_combined, by="incidentBeginDate"))
+  left_join(x=floods1, y=fema_combined, by="County"))
 
 #removing redundant columns
 
@@ -230,7 +237,7 @@ str_locate(`Geographic Area Name`,",")[,1]+1,),side="both")),
 census_poverty_data[,3:369]<- lapply(census_poverty_data[,3:369],as.numeric)
 
 floods_fema_combined_noNA<- floods_fema_combined_noNA |> 
-                      rename(County = CZ_NAME, State = STATE)
+                      rename( State = STATE)
 
 
 floods_fema_census<- left_join(floods_fema_combined_noNA,census_poverty_data,
@@ -249,10 +256,12 @@ f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |>
 f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 & 2021") %>%
   kable_classic(full_width = F)
 ```
-We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happen in non-coastal states. 
-What's interesting here is that South Dakota has a large number of flood events. So do Kentucy, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota later. 
+We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happened in non-coastal states in 2020 and 2021.
 
-Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated above. 
+What's interesting here is that South Dakota has a large number of flood events. So do Kentucky, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota at some other point. 
+
+### Poverty across States and Flooded Areas
+Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated in Table 1. 
 
 ```{r}
 #| echo: false
@@ -285,6 +294,7 @@ state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI",
                "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
                "FLORIDA", "TEXAS")
 
+
 poverty_noNA<- floods_fema_census |> filter(
   is.na(`Estimate Below poverty level `)==FALSE& 
     is.na(`Estimate Total Population`)==FALSE)
@@ -297,35 +307,96 @@ poverty_level<-poverty_noNA |>
 ggplot(poverty_level, aes(State, poverty_diff))+
   geom_bar(stat="identity", fill="#8FA8F9")+#coord_cartesian(ylim=c(10,18))+
   theme_classic()+
-  labs(title="Poverty levels for flooded areas relative to the Whole State", 
+  labs(title="Poverty levels for areas with recorded disasters relative to the Whole State", 
        y= "Difference in Percent below poverty level", x= "State")+
   geom_hline(yintercept=0, color='red')+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
-We can see that there are a few states here where the flooded areas appear poorer than the state and others where the flooded areas aren't as poor as the rest of the state. This doesn't necessarily mean that in these states the floods happen in areas with wealthier people. We can use the census data to look at flooding in areas where the income is high above the poverty level (Which is by no means equivalent to saying areas with high levels of income.)We can look at areas between 300% and  500% of the US poverty level as being comfortably above the poverty level but we'll come to that later.
+There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. Instead let's look at percent of population between 300-500% of the poverty line versus those below the poverty line to see if there is a disproportionate relationship between disaster declaration and wealth. 
+
+Before we get to that:
 
 Are there any trends in deaths, property damage and crop damage between these two groups of states? 
-
+We'll take Missouri, Tennessee and Kentucky in the former group because the margins for them are well within the limit where errors in measurement would swing them to be in the other group. 
 ```{r}
+#| echo: false
+#| warning: false
+#| message: false
 #poor is a misnomer here and refers to the flooded areas in each state, not the poverty of the state overall
 state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
                "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
                "FLORIDA", "TEXAS")
 
-poor_list<-c("ARKANSAS", "FLORIDA", "ILLINOIS", "KENTUCKY", "MISSOURI", 
-             "NEW YORK", "WEST VIRGINIA")
-not_poor_state_list<- c("INDIANA", "IOWA", "SOUTH DAKOTA", "TENNESSEE", "TEXAS")
+poor_list<-c( "ARKANSAS","ILLINOIS", "INDIANA", "IOWA", "TEXAS", "TENNESSEE",
+              "MISSOURI", "KENTUCKY","WEST VIRGINIA")
+
 
 comparisons_state_groups<- floods_fema_census |> filter(State %in% state_list) |> 
-  group_by(State) |> summarize(
-    deaths=sum(DEATHS_DIRECT+DEATHS_INDIRECT),
-    prop_damage = sum(DAMAGE_PROPERTY),
-    crop_damage=sum(DAMAGE_CROPS, .keepall=TRUE)
-  ) |> mutate(poorer_areas_flooded = ifelse(State %in% poor_list),1,0)
+  group_by(State)  |> 
+  select(c("State", "County","INJURIES_INDIRECT", "INJURIES_DIRECT", 
+    "DEATHS_INDIRECT","DEATHS_DIRECT", "DAMAGE_PROPERTY", "DAMAGE_CROPS" ))|> 
+  mutate(poorer_areas_flooded = 
+                              ifelse(State %in% poor_list,"Flooded Areas not Richer than State Average","Flooded Areas Richer than State Average"),
+         Deaths = DEATHS_INDIRECT+DEATHS_DIRECT) |> group_by(County)
 
 #It would appear that the data for property and crop damage for Florida is NA. These values are also zero for some other states. 
 
-ggplot(comparisons_state_groups, aes(State,log(prop_damage)))+
-  geom_point()
+ggplot(comparisons_state_groups, aes(State,log(DAMAGE_PROPERTY)))+
+  geom_point(size=1, alpha=0.05)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", width=0.3)+
+  stat_summary(
+    geom = "point",
+    fun.y = "median",
+    size = 3,
+    color="black",
+    shape = 23,
+    fill = "orange"
+  )+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  labs(title="Is Property Damage higher in states where floods affect areas richer than the state average",
+       y= "Property Damage (log)",
+         caption = "Orange diamonds indicate the mean log property damage, error bars are in red")+
+  facet_wrap(~poorer_areas_flooded)
+
+ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
+  geom_point(size=1, alpha=0.15)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", width=0.3)+
+  stat_summary(
+    geom = "point",
+    fun.y = "median",
+    size = 3,
+    color="black",
+    shape = 23,
+    fill = "orange"
+  )+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  labs(title="Is Crop Damage higher in states where floods affect areas richer than the state average",
+       y= "Property Damage (log)",
+         caption = "Orange diamonds indicate the mean log Crop damage, error bars are in red")+
+  facet_wrap(~poorer_areas_flooded)
+  
+ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
+  geom_point(size=1, alpha=0.15)+
+  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
+        geom="errorbar", color="red", width=0.3)+
+  stat_summary(
+    geom = "point",
+    fun.y = "median",
+    size = 3,
+    color="black",
+    shape = 23,
+    fill = "orange"
+  )+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  labs(title="Is Crop Damage higher in states where floods affect areas richer than the state average",
+       y= "Property Damage (log)",
+         caption = "Orange diamonds indicate the mean log Crop damage, error bars are in red")+
+  facet_wrap(~poorer_areas_flooded)
+
 ```
 
