@@ -1,20 +1,26 @@
 ---
 title: "Floods"
-format: html
+format: pdf
 editor: visual
 ---
 
 ```{r}
-#Intializing relevant libraries
+#| echo: false
+#| message: false
+#Initializing relevant libraries
 
 library(tidyverse)
+library(ggplot2)
 ```
 
-## Introduction
+# Introduction
 
-## Data Cleaning
+#Data Cleaning
 
 ```{r}
+#| echo: false
+#| message: false
+
 #Reading in the data from NOAA
 storms<- read.csv("StormEvents_details_2021.csv")
 
@@ -22,10 +28,12 @@ storms<- read.csv("StormEvents_details_2021.csv")
 floods<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
 
 ```
- So immediately, a few things stand out: the way the dates are coded and the fact that they're coded twice and differently. 
- What I'll shoot for here is to have dates as month, day and time and also as a single datetime
- 
+
+So immediately, a few things stand out: the way the dates are coded and the fact that they're coded twice and differently. What I'll shoot for here is to have dates as month, day and time and also as a single datetime
+
 ```{r}
+#| echo: false
+
 #floods_date_time<- floods_raw |> select(-c(BEGIN_YEARMONTH,BEGIN_DAY,BEGIN_TIME,
                                           # END_YEARMONTH,END_DAY,END_TIME))
 
@@ -49,10 +57,12 @@ floods1<- floods1 |> mutate(incidentEndTime =
           hms(str_sub(END_DATE_TIME,
           str_locate(END_DATE_TIME," ")[2],)), .before=END_DATE_TIME)
 ```
- 
-After dates, the damages columns need fixing.  
 
-```{r, echo=FALSE}
+After dates, the damages columns need fixing.
+
+```{r}
+#| echo: false
+
 #Property damage
 
 #First lets check if there are any entries in property damage that don't end in
@@ -61,8 +71,7 @@ floods$DAMAGE_PROPERTY<- str_trim(floods$DAMAGE_PROPERTY, side="both")
 dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
                        str_detect(DAMAGE_PROPERTY,"M")==TRUE))[1]
 
-#This isn't the same as the number of rows in floods. A little messing around
-#tells us that this is because some values are NA. 
+#This isn't the same as the number of rows in floods. A little messing around (looking at distinct values for property damage) tells us that this is because some values are NA. 
 
 #So now we know that every entry in this column ends in k or m or is NA, we can 
 #retrieve the number and conditionally multiply by 1000 or a million
@@ -85,7 +94,9 @@ floods$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
 
 Let's join the floods data with the combined fema data:
 
-```{r, echo=FALSE}
+```{r}
+#| echo: false
+#| warning: false
 fema<- suppressWarnings(read_csv("DisasterDeclarationsSummaries.csv"))
 fema_floods<- fema |> filter(str_detect(incidentType, "Flood")==TRUE) |> 
                   filter(str_detect(incidentBeginDate,"2021")==TRUE)
@@ -115,7 +126,8 @@ floods_fema_combined_noNA<- floods_fema_combined |>
 We can also join this data with poverty data from the census. This data has to be cleaned first:
 
 ```{r}
-
+#| echo: false
+#| warning: false
 #We start by reading in the data
 census1_2020<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Data.csv")
 census1_2021<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2021.S1701-Data.csv")
@@ -183,11 +195,14 @@ col_names<- str_replace(col_names,"Population 25 years and over","")
 col_names<- str_replace(col_names,"Civilian labor force 16 years and over","")
 
 colnames(census_poverty_data)<- col_names
+#Storing the census questions in a data frame so I can consult it in the future when deciding on what analysis is appropriate
+metadata_census_qs<- data.frame(col_names)
 ```
 
-Now, in order to join the census data and the floods combined data, we need to reduce the geographic area name column to just the county. Furthermore, we will rename it to have the same name as in floods. 
+Now, in order to join the census data and the floods combined data, we need to reduce the geographic area name column to just the county. Furthermore, we will rename it to have the same name as in floods.
 
 ```{r}
+#| echo: false
 census_poverty_data<- census_poverty_data |> 
               rename(County = `Geographic Area Name`)
 
@@ -198,7 +213,11 @@ floods_fema_combined_noNA<- floods_fema_combined_noNA |>
                       rename(County = CZ_NAME)
 
 
-
+floods_fema_census<- left_join(floods_fema_combined_noNA,census_poverty_data,
+                               by="County")
 
 ```
 
+Now we have three data frames - just the floods data from NOAA, the floods and fema data and the floods, fema and census data combined. That means its time for some EDA.
+
+# EDA
