@@ -347,7 +347,7 @@ ggplot(comparisons_state_groups, aes(State,log(DAMAGE_PROPERTY)))+
         geom="errorbar", color="red", width=0.3)+
   stat_summary(
     geom = "point",
-    fun.y = "median",
+    fun.y = "mean",
     size = 3,
     color="black",
     shape = 23,
@@ -355,18 +355,18 @@ ggplot(comparisons_state_groups, aes(State,log(DAMAGE_PROPERTY)))+
   )+
   theme_classic()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  labs(title="Is Property Damage higher in states where floods affect areas richer than the state average",
+  labs(title="Is Property Damage higher in states where floods affect \nareas richer than the state average",
        y= "Property Damage (log)",
          caption = "Orange diamonds indicate the mean log property damage, error bars are in red")+
   facet_wrap(~poorer_areas_flooded)
 
 ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
-  geom_point(size=1, alpha=0.15)+
+  geom_point(size=1, alpha=0.5)+
   stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
         geom="errorbar", color="red", width=0.3)+
   stat_summary(
     geom = "point",
-    fun.y = "median",
+    fun.y = "mean",
     size = 3,
     color="black",
     shape = 23,
@@ -374,29 +374,22 @@ ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
   )+
   theme_classic()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  labs(title="Is Crop Damage higher in states where floods affect areas richer than the state average",
-       y= "Property Damage (log)",
+  labs(title="Is Crop Damage higher in states where floods affect \nareas richer than the state average",
+       y= "Crop Damage (log)",
          caption = "Orange diamonds indicate the mean log Crop damage, error bars are in red")+
   facet_wrap(~poorer_areas_flooded)
   
-ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
-  geom_point(size=1, alpha=0.15)+
-  stat_summary(fun.data=mean_sdl, fun.args = list(mult=1), 
-        geom="errorbar", color="red", width=0.3)+
-  stat_summary(
-    geom = "point",
-    fun.y = "median",
-    size = 3,
-    color="black",
-    shape = 23,
-    fill = "orange"
-  )+
+ggplot(comparisons_state_groups, aes(State,Deaths))+
+  geom_point(size=1, alpha=0.9)+
   theme_classic()+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  labs(title="Is Crop Damage higher in states where floods affect areas richer than the state average",
-       y= "Property Damage (log)",
-         caption = "Orange diamonds indicate the mean log Crop damage, error bars are in red")+
+  labs(title="Are there more deaths in states where floods \naffect areas richer than the state average",
+       y= "Deaths")+
   facet_wrap(~poorer_areas_flooded)
 
 ```
+The crop damage graph is almost immediately indicative of which states are more rural/rely ostensibly more on farming. What's interesting is the difference in crop damage across states. Is the crop damage higher because the flooding was more sever/more prolonged or was it because the primary crop grown there is more susceptible to flood damage?
 
+The deaths from floods in 2020-2021 were zero in most states which is great news. However it appear Tennessee really suffered, with close to 20 deaths from one flood alone. 
+
+By far the most interesting graph of this trifecta is the one detailing property damage.It makes sense that Florida, with coastal flooding might have had more property damage, being more densely populated. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occured across both rural and urban areas? Or is it perhpas
