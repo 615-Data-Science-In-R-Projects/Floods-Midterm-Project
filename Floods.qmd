@@ -75,7 +75,7 @@ After dates, the damages columns need fixing.
 
 #First lets check if there are any entries in property damage that don't end in
 #either K or M
-floods$DAMAGE_PROPERTY<- str_trim(floods$DAMAGE_PROPERTY, side="both")
+floods1$DAMAGE_PROPERTY<- str_trim(floods$DAMAGE_PROPERTY, side="both")
 dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
                        str_detect(DAMAGE_PROPERTY,"M")==TRUE))[1]
 
@@ -84,7 +84,7 @@ dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
 #So now we know that every entry in this column ends in k or m or is NA, we can 
 #retrieve the number and conditionally multiply by 1000 or a million
 
-floods$DAMAGE_PROPERTY<- ifelse(str_detect(floods$DAMAGE_PROPERTY,"K")==TRUE,
+floods1$DAMAGE_PROPERTY<- ifelse(str_detect(floods$DAMAGE_PROPERTY,"K")==TRUE,
                     as.numeric(str_sub(floods$DAMAGE_PROPERTY,0,-2))*1000,
                     ifelse(str_detect(floods$DAMAGE_PROPERTY,"M")==TRUE,
                     as.numeric(str_sub(floods$DAMAGE_PROPERTY,0,-2))*1000000,
@@ -92,7 +92,7 @@ floods$DAMAGE_PROPERTY<- ifelse(str_detect(floods$DAMAGE_PROPERTY,"K")==TRUE,
 
 #We can do the same for crop_damage
 
-floods$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
+floods1$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
                     as.numeric(str_sub(floods$DAMAGE_CROPS,0,-2))*1000,
                     ifelse(str_detect(floods$DAMAGE_CROPS,"M")==TRUE,
                     as.numeric(str_sub(floods$DAMAGE_CROPS,0,-2))*1000000,
@@ -242,17 +242,20 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis if we want to have that focus geographically. 
 ```{r}
 #| echo: false
-floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n))
+f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(NumberOfFloods = n)
+print(f[1:12,])
 ```
 We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happen in non-coastal states. 
 What's interesting here is that South Dakota has a large number of flood events. So do Kentucy, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota later. 
 
-Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top ten most flooded states as indicated above. 
+Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top twelve most flooded states as indicated above. 
 
 ```{r}
 #| echo: false
 state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
-               "ILLINOIS", "IOWA","NEW YORK", "INDIANA", "FLORIDA")
+               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
+               "FLORIDA", "TEXAS")
+               
 
 
 state_poverty_level<-census_poverty_data |> 
@@ -270,11 +273,13 @@ ggplot(state_poverty_level, aes(State, `Below poverty level`))+
   
   
 ```
-We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service Poverty in the United States 2021 and 2020) Let's see how that compares  for only those counties with flood events in 2020 or 2021. 
+We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service, Poverty in the United States 2021 and 2020) Let's see how that compares  for only those counties with flood events in 2020 or 2021. 
 
 ```{r}
-state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
-               "ILLINOIS", "IOWA","NEW YORK", "INDIANA", "FLORIDA")
+#| echo: false
+state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
+               "FLORIDA", "TEXAS")
 
 poverty_noNA<- floods_fema_census |> filter(
   is.na(`Estimate Below poverty level `)==FALSE& 
@@ -293,4 +298,29 @@ ggplot(poverty_level, aes(State, poverty_diff))+
   geom_hline(yintercept=0, color='red')+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
-We can see that there are a few states here where the 
+We can see that there are a few states here where the flooded areas appear poorer than the state and others where the flooded areas aren't as poor as the rest of the state. This doesn't necessarily mean that in these states the floods happen in areas with wealthier people. We can use the census data to look at flooding in areas where the income is high above the poverty level (Which is by no means equivalent to saying areas with high levels of income.)We can look at areas between 300% and  500% of the US poverty level as being comfortably above the poverty level but we'll come to that later.
+
+Are there any trends in deaths, property damage and crop damage between these two groups of states? 
+
+```{r}
+#poor is a misnomer here and refers to the flooded areas in each state, not the poverty of the state overall
+state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
+               "FLORIDA", "TEXAS")
+
+poor_list<-c("ARKANSAS", "FLORIDA", "ILLINOIS", "KENTUCKY", "MISSOURI", 
+             "NEW YORK", "WEST VIRGINIA")
+not_poor_state_list<- c("INDIANA", "IOWA", "SOUTH DAKOTA", "TENNESSEE", "TEXAS")
+
+comparisons_state_groups<- floods_fema_census |> filter(State %in% state_list) |> 
+  group_by(State) |> summarize(
+    deaths=sum(DEATHS_DIRECT+DEATHS_INDIRECT),
+    prop_damage = sum(DAMAGE_PROPERTY),
+    crop_damage=sum(DAMAGE_CROPS)
+  ) |> mutate()
+
+#It would appear that the data for property and crop damage for Florida is NA. These values are also zero for some other states. 
+
+ggplot(co)
+```
+
