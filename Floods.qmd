@@ -398,12 +398,48 @@ By far the more interesting graph is the one detailing property damage.It makes 
 
 So, what questions has our initial exploration left us with:
 
--   Do poorer areas get flooded more in these states than those that are wealthier?
--   Do poorer areas get fewer funds from fema? Shouldn't they get more? Do they get more?
+-   Do poorer areas get affected worse by floods?
 -   Is property damage damage largely a function of damage to individual homes or to infrastructure?
 
 ```{r}
+
 poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
 
+poverty_analysis<- poverty_analysis |> mutate(percent_poor=
+    (`Estimate Below poverty level `/`Estimate Total Population`)*100)|> 
+ select(c(County, State, BEGIN_DATE_TIME:FLOOD_CAUSE,femaDeclarationString:totalObligatedAmountHmgp,percent_poor))
+hist(x=poverty_analysis$percent_poor, col="#8FA8F9", main= "Histogram of poverty percentage vs Flood incidence", xlab = "Percent of Population below poverty level")
 
 ```
+There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder. How would we go about seeing if that is the case? We can look at the fema information. How many requests for funding came in?
+How are funds distributed across various poverty levels to a) infrastructure b) individuals assistance c) Housing Assistance. 
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
+
+poverty_analysis_severity<- poverty_analysis|> group_by(County) |> summarise(percent_poor =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100,
+              State = State,
+               individual_housing_assistance_declared=sum(ihProgramDeclared),
+               public_assistance_declared = sum(paProgramDeclared),
+               hazard_mitigation_declared=sum(hmProgramDeclared) )
+
+poverty_analysis_severity<- poverty_analysis_severity |> mutate(poverty = 
+                        ifelse(percent_poor<10, "Below 10%", 
+                        ifelse(percent_poor<15&percent_poor>=10,"10-15%",
+                        ifelse(percent_poor<20&percent_poor>=15,"15-20%",
+                        ifelse(percent_poor<25&percent_poor>=20,"20-25%",
+                        ifelse(percent_poor<30&percent_poor>=25,"25-30%",
+                        ">30%")))))) |> distinct(County, .keep_all = TRUE) 
+
+ggplot(poverty_analysis_severity, aes(x=County, y=individual_housing_assistance_declared, color=State))+
+geom_point()+facet_wrap(~poverty)+labs(
+  title="Declarations of Individual Housing Program Assistance \n by County and Poverty",
+  y="Number of IHA Declarations",
+  caption="Each point is a county"
+)+theme(axis.text.x=element_blank())+scale_color_manual()
+
+```
+
