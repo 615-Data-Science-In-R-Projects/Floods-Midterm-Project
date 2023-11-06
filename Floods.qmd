@@ -259,8 +259,15 @@ state_poverty_level<-census_poverty_data |>
   filter(State %in% state_list) |> group_by(State) |> summarise(`Below poverty level` =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100)
 
 ggplot(state_poverty_level, aes(State, `Below poverty level`))+
-  geom_bar(stat="identity")+coord_cartesian(ylim=c(10,18))+
+  geom_bar(stat="identity", fill="#8FA8F9")+coord_cartesian(ylim=c(10,18))+
+  theme_classic()+
   labs(title="Percent of population below poverty level by State", 
        y= "Percent below poverty level", x= "State")+
+  geom_hline(yintercept=11.5, color='red')+
+  annotate("text", x="Kentucky",
+           y=11.8, label="US Average percent below poverty level = 11.5%")+
+  
+  
+  
 ```
 
