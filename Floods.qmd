@@ -215,23 +215,23 @@ Now, in order to join the census data and the floods combined data, we need to r
 #| warning: false
 census_poverty_data<- census_poverty_data |> 
               mutate(County = 
-        str_trim(str_sub(`Geographic Area Name`,1,
-          str_locate(`Geographic Area Name`," ")[,1]),side="both"), 
+        toupper(str_trim(str_sub(`Geographic Area Name`,1,
+          str_locate(`Geographic Area Name`," ")[,1]),side="both")), 
         .before=`Estimate Total Population`)
 
 census_poverty_data<- census_poverty_data |> mutate(
-  State=str_trim(str_sub(`Geographic Area Name`,
-str_locate(`Geographic Area Name`,",")[,1]+1,),side="both"),
+  State=toupper(str_trim(str_sub(`Geographic Area Name`,
+str_locate(`Geographic Area Name`,",")[,1]+1,),side="both")),
         .before=`Estimate Total Population`) |> select(-`Geographic Area Name`)
 
 census_poverty_data[,3:369]<- lapply(census_poverty_data[,3:369],as.numeric)
 
 floods_fema_combined_noNA<- floods_fema_combined_noNA |> 
-                      rename(County = CZ_NAME)
+                      rename(County = CZ_NAME, State = STATE)
 
 
 floods_fema_census<- left_join(floods_fema_combined_noNA,census_poverty_data,
-                               by="County")
+                               by=c("County","State"))
 
 ```
 
@@ -242,17 +242,17 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis if we want to have that focus geographically. 
 ```{r}
 #| echo: false
-floods_fema_census |> group_by(STATE) |> count(STATE) |> arrange(desc(n))
+floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n))
 ```
-We have coastal states like New York and Florida represented but it would appear that the large majority of floods happen in non-coastal states. 
+We have coastal states like New York and West Virginia represented but it would appear that the large majority of floods happen in non-coastal states. 
 What's interesting here is that South Dakota has a large number of flood events. So do Kentucy, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here. My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. It might be worth paying special attention to South Dakota later. 
 
 Let's start by visualizing how poverty varies across the states in question. We can limit ourselves to the top ten most flooded states as indicated above. 
 
 ```{r}
 #| echo: false
-state_list<- c("Kentucky","South Dakota", "Tennessee", "Arkansas", "Missouri", 
-               "Illinois", "Iowa","New York", "Indiana", "Florida")
+state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "ILLINOIS", "IOWA","NEW YORK", "INDIANA", "FLORIDA")
 
 
 state_poverty_level<-census_poverty_data |> 
@@ -264,10 +264,30 @@ ggplot(state_poverty_level, aes(State, `Below poverty level`))+
   labs(title="Percent of population below poverty level by State", 
        y= "Percent below poverty level", x= "State")+
   geom_hline(yintercept=11.5, color='red')+
+  annotate("text", x="KENTUCKY",
+           y=11.8, label="US Percent below poverty level = 11.5%")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  
+  
+```
+We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service Poverty in the United States 2021 and 2020) Let's see how that compares  for only those counties with flood events in 2020 or 2021. 
+
+```{r}
+state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "ILLINOIS", "IOWA","NEW YORK", "INDIANA", "FLORIDA")
+
+
+poverty_level<-floods_fema_census |> 
+  filter(State %in% state_list) |> group_by(State) |> summarise(`Below poverty level` =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100)
+
+ggplot(poverty_level, aes(State, `Below poverty level`))+
+  geom_bar(stat="identity", fill="#8FA8F9")+coord_cartesian(ylim=c(10,18))+
+  theme_classic()+
+  labs(title="Percent of population below poverty level by State", 
+       y= "Percent below poverty level", x= "State")+
+  geom_hline(yintercept=11.5, color='red')+
   annotate("text", x="Kentucky",
-           y=11.8, label="US Average percent below poverty level = 11.5%")+
-  
-  
-  
+           y=11.8, label="US Percent below poverty level = 11.5%")+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
 
