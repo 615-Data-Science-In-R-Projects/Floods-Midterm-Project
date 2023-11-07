@@ -404,7 +404,9 @@ So, what questions has our initial exploration left us with:
 -   Is property damage damage largely a function of damage to individual homes or to infrastructure?
 
 ```{r}
-
+#|echo: false
+#|warning: false
+#|message: false
 poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
 
 poverty_analysis<- poverty_analysis |> mutate(percent_poor=
