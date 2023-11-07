@@ -17,9 +17,9 @@ library(knitr)
 library(kableExtra)
 ```
 
-# Introduction
+## Introduction
 
-#Data Cleaning
+## Data Cleaning
 
 ```{r}
 #| echo: false
@@ -249,7 +249,7 @@ floods_fema_census<- left_join(floods_fema_combined_noNA,census_poverty_data,
 
 Now we have three data frames - just the floods data from NOAA, the floods and fema data and the floods, fema and census data combined. That means its time for some EDA.
 
-# EDA
+## EDA
 
 So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states.
 
@@ -296,6 +296,8 @@ We can see that most of these states, barring Iowa, are above the US Percent of 
 
 ```{r}
 #| echo: false
+#| wawrning: false
+#| message: false
 state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
                "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
                "FLORIDA", "TEXAS")
@@ -411,10 +413,10 @@ poverty_analysis<- poverty_analysis |> mutate(percent_poor=
 hist(x=poverty_analysis$percent_poor, col="#8FA8F9", main= "Histogram of poverty percentage vs Flood incidence", xlab = "Percent of Population below poverty level")
 
 ```
-There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder. How would we go about seeing if that is the case? We can look at the fema information. How many requests for funding came in?
-How are funds distributed across various poverty levels to a) infrastructure b) individuals assistance c) Housing Assistance. 
 
-So we'll look at the amount of money FEMA grants against the number of declarations of assistance to see if there's a trend. We'll make a plot for each of a, b and c above and see what conclusions can be drawn. 
+There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder. How would we go about seeing if that is the case? We can look at the fema information. How many requests for funding came in? How are funds distributed across various poverty levels to a) infrastructure b) individuals assistance c) Housing Assistance.
+
+So we'll look at the amount of money FEMA grants against the number of declarations of assistance to see if there's a trend. We'll make a plot for each of a, b and c above and see what conclusions can be drawn.
 
 ```{r}
 #| echo: false
@@ -426,7 +428,9 @@ poverty_analysis_severity<- poverty_analysis|> group_by(County) |> summarise(per
               State = State,
                individual_housing_assistance_declared=sum(ihProgramDeclared),
                public_assistance_declared = sum(paProgramDeclared),
-               hazard_mitigation_declared=sum(hmProgramDeclared) )
+              iha_amount= log(sum(totalAmountIhpApproved)),
+              pa_amount=log(sum(totalObligatedAmountPa)),
+              ha_amount = log(sum(totalAmountHaApproved)))
 
 poverty_analysis_severity<- poverty_analysis_severity |> mutate(poverty = 
                         ifelse(percent_poor<10, "Below 10%", 
@@ -436,12 +440,39 @@ poverty_analysis_severity<- poverty_analysis_severity |> mutate(poverty =
                         ifelse(percent_poor<30&percent_poor>=25,"25-30%",
                         ">30%")))))) |> distinct(County, .keep_all = TRUE) 
 
-ggplot(poverty_analysis_severity, aes(x=County, y=individual_housing_assistance_declared, color=State))+
-geom_point()+facet_wrap(~poverty)+labs(
-  title="Declarations of Individual Housing Program Assistance \n by County and Poverty",
-  y="Number of IHA Declarations",
-  caption="Each point is a county"
-)+theme(axis.text.x=element_blank())+scale_color_manual()
+#IHA
+ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
+              y=iha_amount,color=State))+
+geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+  title="Fig1: Individual Housing Program Assistance \n by County and Poverty",
+  x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
+  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+)+scale_color_manual(values=c("#19C5E4","orange","red"))
 
+#PA
+ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
+              y=pa_amount,color=State))+
+geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+  title="Public Assistance \n by County and Poverty",
+  x="Fig2: Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
+  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+)+scale_color_manual(values=c("#19C5E4","orange","red"))
+
+
+#Housing Assistance
+ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
+              y=ha_amount,color=State))+
+geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+  title="Fig3: Housing Assistance \n by County and Poverty",
+  x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
+  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+)+scale_color_manual(values=c("#19C5E4","orange","red"))
 ```
+
+
+
+
+
+
+
 
