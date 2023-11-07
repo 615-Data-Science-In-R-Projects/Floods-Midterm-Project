@@ -500,4 +500,4 @@ Starting with Figure 1: Barring the 10-15% below poverty level group, it would a
 
 Figure 2: This one is largely more indicative of assistance to roads, government buildings, and rebuilding efforts of that ilk and therefore not particularly informative of financial assistance as far as poverty goes. On a base level though, if one were to make the contention that poorer areas have less infrastructure, we would expect to see significantly fewer requests for public assistance for poorer areas. Clearly this isn't true. 
 
-Figure 3:
+Figure 3: The steepest slope of the trend line is for the 10-15% below the poverty line group here. Naturally, that's biased by the fact that there aren't a lot of severe events. The 15-20% group has a lower slope than higher poverty levels but aif we remove the one West Virginia point at the far end, the response trends the same as higher poverty levels. For poverty levels above 20% the magnitude of relative response remains the same and I point you to my earlier comment about what a cynic would be inclined to say of such a state of affairs. 
