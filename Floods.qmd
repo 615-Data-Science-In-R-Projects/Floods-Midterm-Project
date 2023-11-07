@@ -20,9 +20,9 @@ library(kableExtra)
 ## Introduction
 (Forgive the following grandiosity:)
 
-Since time immemorial,the idea of floods and rising waters and the calamities they bring have captured the human imagination. Since time immemorial, that fear has been true. Civilization blossomed on the flood plains - of the Tigris and Euphrates, the Indus and the Nile, and ever has water been our making and our unmaking. With the looming specters of global warming, climate change, storms, unpredictability and environmental damage; understanding the effect of floods is increasingly important and even more important, I would argue, is figuring out if these effects are visited disproportionately on the most vulnerable parts of our population. 
+Since time immemorial,the idea of floods and rising waters and the calamities they bring have captured the human imagination. Since time immemorial, that fear has been true. Civilization blossomed on the flood plains - of the Tigris and Euphrates, the Indus and the Nile, and ever has water been our making and our unmaking. With the looming specters of global warming, climate change, storms, unpredictability and environmental damage, understanding the effect of floods is increasingly important. Even more important, I would argue, is figuring out if these effects are visited disproportionately on the most vulnerable parts of our population. 
 
-I will not pretend that this analysis comes even close to such a lofty goal. But it provides some information. Certainly, it provided me with plenty. Do floods afect poor parts of the US more than wealthier parts? Are responses to floods and financial assistance distributed in an equitable manner? It's not good news I'm afraid. But the railing against the state of affairs will come later. There are steps to be taken on the journey between now and then.
+I will not pretend that this analysis comes even close to such a lofty goal. But it provides some information. Certainly, it provided me with plenty. Do floods affect poor parts of the US more than wealthier parts? Are responses to floods and financial assistance distributed in an equitable manner? It's not good news, I'm afraid. But the railing against the state of affairs will come later. There are steps to be taken on the journey between now and then.
 
 ## Data Cleaning
 
