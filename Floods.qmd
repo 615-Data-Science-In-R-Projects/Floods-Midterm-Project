@@ -20,7 +20,15 @@ library(kableExtra)
 ## Introduction
 
 ## Data Cleaning
+Data Cleaning for this EDA that followed largely consisted of improving the way the data was labelled so that it was easier to parse, fixing some obvious issues with the way the data was stored and then getting each dataset in a good shape for the joins that would assemble the large dataset I used for most of my analysis. 
 
+The final dataset consists of data from NOAA, FEMA data on disaster summaries and on assistance given, and finally census data about poverty in various counties across the US. 
+
+Beginning with the NOAA data: this was read in for 2020 and 2021 and the two data frames were joined after a few trivial steps. This was then filtered to include only Flood events. Immediately, a few things stand out: the way the dates are coded and the fact that they were coded twice and differently.This was fixed by dropping the less informative columns and using lubridate to sort the rest. The damages columns were converted to numeric and multiplied by a thousand or a million depending on the suffix attached to them in the data. 
+
+Next each of the two fema datasets was read into a dataframe,cleaned and combined. Then floods was left joined to this combined dataframe. Columns such as magnitude which didn't contain any information pertinent to floods were dropped. 
+
+Then census data on poverty for 2020 and 20201 were read in, cleaned, combined. The biggest thing here was getting the names of the columns to be something easily parseable which was achieved through various lines of stringr code. The floods-fema data was left joined with this and voila.
 ```{r}
 #| echo: false
 #| message: false
@@ -42,8 +50,6 @@ floods<- storms |> filter(str_detect(EVENT_TYPE,"Flood")==TRUE)
 
 ```
 
-So immediately, a few things stand out: the way the dates are coded and the fact that they're coded twice and differently. What I'll shoot for here is to have dates as month, day and time and also as a single datetime
-
 ```{r}
 #| echo: false
 
@@ -57,7 +63,6 @@ floods1<- floods1 |> mutate(incidentEndDate=
             dmy(str_sub(END_DATE_TIME,1,
           str_locate(END_DATE_TIME," ")[2])),.before =END_DATE_TIME)
 
-#We can also add a time column. We'll adjust this for timezones later
 
 floods1<- floods1 |> mutate(incidentBeginTime = 
           hms(str_sub(BEGIN_DATE_TIME,
@@ -67,8 +72,6 @@ floods1<- floods1 |> mutate(incidentEndTime =
           hms(str_sub(END_DATE_TIME,
           str_locate(END_DATE_TIME," ")[2],)), .before=END_DATE_TIME)
 ```
-
-After dates, the damages columns need fixing.
 
 ```{r}
 #| echo: false
@@ -104,12 +107,12 @@ floods1$DAMAGE_CROPS<- ifelse(str_detect(floods$DAMAGE_CROPS,"K")==TRUE,
 
 ```
 
-Let's join the floods data with the combined fema data:
-
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
+
+#Cleaning FEMA
 fema<- suppressWarnings(read_csv("DisasterDeclarationsSummaries.csv"))
 fema_floods<- fema |> filter(str_detect(incidentType, "Flood")==TRUE) |> 
                   filter(str_detect(incidentBeginDate,"2021")==TRUE|
@@ -144,11 +147,12 @@ floods_fema_combined_noNA<- floods_fema_combined |>
   filter(is.na(declarationType)==FALSE)
 ```
 
-We can also join this data with poverty data from the census. This data has to be cleaned first:
-
 ```{r}
 #| echo: false
 #| warning: false
+
+#Census
+
 #We start by reading in the data
 census1_2020<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2020.S1701-Data.csv")
 census1_2021<- read.csv("Census Download_2023-10-23T135225/ACSST5Y2021.S1701-Data.csv")
