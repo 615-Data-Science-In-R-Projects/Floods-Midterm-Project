@@ -35,7 +35,7 @@ Beginning with the NOAA data: this was read in for 2020 and 2021 and the two dat
 
 Next each of the two fema datasets was read into a dataframe,cleaned and combined. Then floods was left joined to this combined dataframe. Columns such as magnitude which didn't contain any information pertinent to floods were dropped.
 
-Then census data on poverty for 2020 and 20201 were read in, cleaned, combined. The biggest thing here was getting the names of the columns to be something easily parse-able which was achieved through various lines of stringr code. The floods-fema data was left joined with this and voila.
+Then census data on poverty for 2020 and 2021 were read in, cleaned, combined. The biggest thing here was getting the names of the columns to be something easily parse-able which was achieved through various lines of stringr code. The floods-fema data was left joined with this and voila.
 
 ```{r}
 #| echo: false
@@ -259,13 +259,13 @@ floods_fema_census<- left_join(floods_fema_combined_noNA,census_poverty_data,
 
 ```
 
-Now we have three data frames - just the floods data from NOAA, the floods and fema data and the floods, fema and census data combined. That means its time for some EDA.
+Now we have three data frames - just the floods data from NOAA, the floods and FEMA data and the floods, FEMA and Census data combined. That means its time for some EDA.
 
 ## EDA
 
 So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states.
 
-My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with FEMA claims. Displaying just the top 12 states by flood incidents:
+My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with FEMA claims. Table 1 Displays just the top 12 states by flood incidents.
 
 ```{r}
 #| echo: false
@@ -295,14 +295,14 @@ ggplot(state_poverty_level, aes(State, `Below poverty level`))+
   labs(title="Percent of population below poverty level by State", 
        y= "Percent below poverty level", x= "State")+
   geom_hline(yintercept=11.5, color='red')+
-  annotate("text", x="KENTUCKY",
+  annotate("text", x="OHIO",
            y=11.8, label="Nation-wide Percent below poverty level = 11.5%")+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   
   
 ```
 
-We can see that most of these states, barring Iowa, are above the US Percent of population below poverty level.(Congressional Research Service, Poverty in the United States 2021 and 2020). Let's see how that compares for only those counties with flood events in 2020 or 2021.
+We can see that most of these states, barring Virginia, are above the US Percent of population below poverty level.(Congressional Research Service, Poverty in the United States 2021 and 2020). Let's see how that compares for only those counties with flood events in 2020 or 2021.
 
 ```{r}
 #| echo: false
@@ -401,7 +401,7 @@ ggplot(comparisons_state_groups, aes(State,log(DAMAGE_CROPS)))+
 
 The crop damage graph is almost immediately indicative of which states are more rural/rely ostensibly more on farming. What's interesting is the difference in crop damage across states. Is the crop damage higher because the flooding was more sever/more prolonged or was it because the primary crop grown there is more susceptible to flood damage? It might be interesting, in a future analysis, with some agricultural data to evaluate that.
 
-The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. This wasn't really worth visualizing as a graph so I've plaed this information here.
+The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. This wasn't really worth visualizing as a graph so I've mentioned this information here.
 
 By far the more interesting graph is the one detailing property damage. West Virginia had a lot of floods but had lower property damage levels than Virginia and its mean property damage is the lowest of all these states.
 
@@ -466,8 +466,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 1: Individual Household Program Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
-  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
-)+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505","#A0970C"))
+  caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505","#A0970C"))
 
 
 
@@ -477,8 +476,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 2: Public Assistance \n by County and Poverty",
   x=" Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
-  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
-)+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
+  caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 
 
 
@@ -489,8 +487,7 @@ ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 3: Housing Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
-  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
-)+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
+  caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 ```
 
 Let's break this down. Across all three of the above graphs, moving along the x axis, I would contend, is a measure of the severity of the flood. Moving along the y axis indicates the magnitude of financial assistance - the response. You'd hope there's a positive slope to the trend line I've inserted, and mercifully for humanity, this is the case basically in all of the above instances. The steeper the trend line, generally, the larger the assistance for an increase in severity. Naively, one might expect that this rises as the percentage of population below the poverty level increases.
