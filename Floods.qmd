@@ -270,7 +270,7 @@ My focus, in this analysis, is to look at whether floods disproportionately affe
 ```{r}
 #| echo: false
 f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |> rename(`Number Of Floods` = n)
-f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 and 2021") %>%
+f[1:12,] |> kbl(caption = "Floods in 2020 and 2021") %>%
   kable_classic(full_width = F)
 ```
 
