@@ -465,7 +465,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=iha_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 1: Individual Household Program Assistance \n by County and Poverty",
-  x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
+  x="Number of IHA Declarations",y="Individual/Household Assistance (log$)",
   caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505","#A0970C"))
 
 
@@ -475,7 +475,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=pa_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 2: Public Assistance \n by County and Poverty",
-  x=" Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
+  x=" Number of PA Declarations",y="Public Assistance Program Obligations (log$)",
   caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 
 
@@ -486,7 +486,7 @@ ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
               y=ha_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 3: Housing Assistance \n by County and Poverty",
-  x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
+  x="Number of IHA Declarations",y="Housing Assistance (log$)",
   caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 ```
 
