@@ -4,4 +4,4 @@
 
 #Floods.pdf is the report
 
-#Data Cleaning and Rough Work.R is exactl what the name suggests. 
+#Data Cleaning and Rough Work.R is exactly what the name suggests. 
