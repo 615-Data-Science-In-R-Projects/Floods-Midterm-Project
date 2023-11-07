@@ -15,6 +15,7 @@ library(tidyverse)
 library(ggplot2)
 library(knitr)
 library(kableExtra)
+library(lubridate)
 ```
 
 ## Introduction
@@ -90,8 +91,8 @@ floods1<- floods1 |> mutate(incidentEndTime =
 #First lets check if there are any entries in property damage that don't end in
 #either K or M
 floods1$DAMAGE_PROPERTY<- str_trim(floods$DAMAGE_PROPERTY, side="both")
-dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
-                       str_detect(DAMAGE_PROPERTY,"M")==TRUE))[1]
+#dim(floods |> filter(str_detect(DAMAGE_PROPERTY,"K")==TRUE |
+                      # str_detect(DAMAGE_PROPERTY,"M")==TRUE))[1]
 
 #This isn't the same as the number of rows in floods. A little messing around (looking at distinct values for property damage) tells us that this is because some values are NA. 
 
@@ -262,7 +263,7 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 
 ## EDA
 
-So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states.
+So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states. Displaying just the top 12 states by flood incidents:
 
 ```{r}
 #| echo: false
@@ -271,11 +272,9 @@ f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 and 2021") %>%
   kable_classic(full_width = F)
 ```
 
-We have states with some coastline like New York and Florida represented but it would appear that the large majority of floods happened in land-locked states in 2020 and 2021.
+It would appear that the large majority of floods happened in land-locked states in 2020 and 2021.
 
-What's interesting here is that South Dakota has a large number of flood events. So do Kentucky, Arkansas, Tennessee and Missouri but those latter states are geographically close. South Dakota is a geographic outlier here.
-
-My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with fema claims. So it might be worth paying special attention to South Dakota at some other juncture.
+My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with FEMA claims. 
 
 ### EDA - Intial Scouting (Noah looking out from the Ark)
 
