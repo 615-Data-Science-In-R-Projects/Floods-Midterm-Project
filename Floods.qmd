@@ -19,9 +19,10 @@ library(lubridate)
 ```
 
 ## Introduction
+
 (Forgive the following grandiosity:)
 
-Since time immemorial,the idea of floods and rising waters and the calamities they bring have captured the human imagination. Since time immemorial, that fear has been true. Civilization blossomed on the flood plains - of the Tigris and Euphrates, the Indus and the Nile, and ever has water been our making and our unmaking. With the looming specters of global warming, climate change, storms, unpredictability and environmental damage, understanding the effect of floods is increasingly important. Even more important, I would argue, is figuring out if these effects are visited disproportionately on the most vulnerable parts of our population. 
+Since time immemorial,the idea of floods and rising waters and the calamities they bring have captured the human imagination. Since time immemorial, that fear has been true. Civilization blossomed on the flood plains - of the Tigris and Euphrates, the Indus and the Nile, and ever has water been our making and our unmaking. With the looming specters of global warming, climate change, storms, unpredictability and environmental damage, understanding the effect of floods is increasingly important. Even more important, I would argue, is figuring out if these effects are visited disproportionately on the most vulnerable parts of our population.
 
 I will not pretend that this analysis comes even close to such a lofty goal. But it provides some information. Certainly, it provided me with plenty. Do floods affect poor parts of the US more than wealthier parts? Are responses to floods and financial assistance distributed in an equitable manner? It's not good news, I'm afraid. But the railing against the state of affairs will come later. There are steps to be taken on the journey between now and then.
 
@@ -510,8 +511,7 @@ ggplot(poverty_analysis_severity, aes(x=pa_amount, y=log(DAMAGE_PROPERTY), color
   geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 4: Public Assistance vs Property Damage",
   x="Public Assistance (log $)",y="Property Damage (log $)",
-  caption="Each point is a separate county\n Trend lines show if damage generally increases with amount of public assistance"
-)+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))+ylim(0,12)
+  caption="Each point is a separate county")+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))+ylim(0,12)
 
 ```
 
@@ -521,22 +521,22 @@ The sheer number of 0's for declared property damage likely means we can't tell 
 
 ## Conclusions
 
-Does it appear that floods disproportionately affect poorer communities in the US and amongst those states we've narrowed our analysis to? 
+Does it appear that floods disproportionately affect poorer communities in the US and amongst those states we've narrowed our analysis to?
 
-It's hard to say given only two years of data. But we can certainly say that communities with lower levels of poverty are affected less often and less severely. 
+It's hard to say given only two years of data. But we can certainly say that communities with lower levels of poverty are affected less often and less severely.
 
-Moreover the federal governments response is generally distributed evenly relative to severity of the flood event and regardless of the poverty levels of the community affected. I would argue that the overall effect of this is to reinforce the income and wealth divides, particularly in places where flood incidents occur frequently. 
+Moreover the federal government's response is generally distributed evenly relative to severity of the flood event and regardless of the poverty levels of the community affected. I would argue that the overall effect of this is to reinforce income and wealth divides, particularly in places where flood incidents occur frequently.
 
 A few other points:
-* Interestingly, it appears that landlocked US states are most affected by floods - from rainfall and not from coastal floods. 
-* We haven't been able to conlcude whether property Damage is largely related to housing or infrastructure. This is a question that beggars answering and future analysis with relevant datasets might go some way to answering this. 
-* What affects crop damages in floods? Is it the severity of the flood? Or the sensitivity of the crop to floods? In a world of changing climates, it might be an important question to answer - which crops are most resistant to more and less water than they are normally accustomed. 
 
-I think it would also be useful to extend the analysis done above to: 
-* Other states. Including in this would have confused the insights and distracted from teh findings - such as they are. 
-* Over time: How have flood incidents, severity and their impact on poorer communities changed over time? This is a really important question to answer and this EDA is barely a token acknowledgement of that.
+ - Interestingly, it appears that landlocked US states are most affected by floods - from rainfall and not from coastal floods.
 
+\- We haven't been able to conclude whether property Damage is largely related to housing or infrastructure. This is a question that beggars answering and future analysis with relevant datasets might go some way to answering this.
 
+\- What affects crop damages in floods? Is it the severity of the flood? Or the sensitivity of the crop to floods? In a world of changing climates, it might be an important question to answer - which crops are most resistant to more and less water than they are normally accustomed.
 
+I think it would also be useful to extend the analysis done above to:
 
+ - Other states. Including in this would have confused the insights and distracted from teh findings - such as they are.
 
+\- Over time: How have flood incidents, severity and their impact on poorer communities changed over time? This is a really important question to answer and this EDA is barely a token acknowledgement of that.
