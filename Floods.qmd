@@ -31,7 +31,7 @@ Data Cleaning largely consisted of improving the way the data was labelled so th
 
 The final dataset consists of data from NOAA, FEMA data on disaster summaries and on assistance given, and finally census data about poverty in various counties across the US.
 
-Beginning with the NOAA data: this was read in for 2020 and 2021 and the two data frames were joined after a few trivial steps. This was then filtered to include only Flood events. Immediately, a few things stood out: the way the dates are coded and the fact that they were coded twice and differently.This was fixed by dropping the less informative columns and using lubridate to sort the rest. The damages columns were converted to numeric and multiplied by a thousand or a million depending on the suffix attached to them in the data.
+Beginning with the NOAA data: this was read in for 2020 and 2021 and the two data frames were joined after a few trivial steps. This was then filtered to include only Flood events. Immediately, a few things stood out: the way the dates are coded and the fact that they were coded twice and differently. This was fixed by dropping the less informative columns and using lubridate to sort the rest. The damages columns were converted to numeric and multiplied by a thousand or a million depending on the suffix attached to them in the data.
 
 Next each of the two fema datasets was read into a dataframe,cleaned and combined. Then floods was left joined to this combined dataframe. Columns such as magnitude which didn't contain any information pertinent to floods were dropped.
 
@@ -263,7 +263,9 @@ Now we have three data frames - just the floods data from NOAA, the floods and f
 
 ## EDA
 
-So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states. Displaying just the top 12 states by flood incidents:
+So we can start by just looking at the number of flood events in each state over the two years in question. This might point to something interesting or at the very least give some indication of where to focus analysis geographically. It'll help if we can identify trends in relationship between poverty and floods across states and if there's any obviously similar characteristics across states.
+
+My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with FEMA claims. Displaying just the top 12 states by flood incidents:
 
 ```{r}
 #| echo: false
@@ -271,10 +273,6 @@ f<- floods_fema_census |> group_by(State) |> count(State) |> arrange(desc(n)) |>
 f[1:12,] |> kbl(caption = "Table 1: Floods in 2020 and 2021") %>%
   kable_classic(full_width = F)
 ```
-
-It would appear that the large majority of floods happened in land-locked states in 2020 and 2021.
-
-My focus, in this analysis, is to look at whether floods disproportionately affect poor areas and what relationship poverty has, if any, with FEMA claims. 
 
 ### EDA - Intial Scouting (Noah looking out from the Ark)
 
