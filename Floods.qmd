@@ -428,9 +428,15 @@ hist(x=poverty_analysis$percent_poor, col="#8FA8F9", main= "Histogram of poverty
 
 ```
 
-There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder. How would we go about seeing if that is the case? We can look at the fema information. How many requests for funding came in? How are funds distributed across various poverty levels to a) infrastructure b) individuals assistance c) Housing Assistance.
+There doesn't seem to be a real trend showing that areas with a higher percentage of inhabitants below the poverty line are hit more frequently by floods. This doesn't mean they aren't hit harder.
+
+How would we go about seeing if that is the case? 
+
+We can look at the fema information. How many requests for funding came in? How are funds distributed across various poverty levels to a) infrastructure b) individual assistance c) Housing Assistance.
 
 So we'll look at the amount of money FEMA grants against the number of declarations of assistance to see if there's a trend. We'll make a plot for each of a, b and c above and see what conclusions can be drawn.
+
+A brief caveat here is that while we have housing assistance amounts, we don't have data for the number of declarations for them because they're lumped into individual household assistance by FEMA. The general analysis below holds, however, and is - in my opinion - still valuable. 
 
 ```{r}
 #| echo: false
@@ -458,7 +464,7 @@ poverty_analysis_severity<- poverty_analysis_severity |> mutate(poverty =
 ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=iha_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
-  title="Fig1: Individual Housing Program Assistance \n by County and Poverty",
+  title="Fig 1: Individual Household Program Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
@@ -469,8 +475,8 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
 ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=pa_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
-  title="Public Assistance \n by County and Poverty",
-  x="Fig2: Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
+  title="Fig 2: Public Assistance \n by County and Poverty",
+  x=" Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
 
@@ -481,8 +487,17 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
 ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
               y=ha_amount,color=State))+
 geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
-  title="Fig3: Housing Assistance \n by County and Poverty",
+  title="Fig 3: Housing Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
 ```
+Let's break this down. Across all three of the above graphs, moving along the x axis, I would contend, is a measure of the severity of the flood. Moving along the y axis indicated the magnitude of financial assistance - the response. You'd hope there's a positive slope to the trend line I've inserted and mercifully for humanity, this is the case basically in all of the above instances. The steeper the trend line, generally, the larger the assistance for an increase in severity. Naively, one might expect that this rises as the percentage of population below the poverty level increases. 
+
+What is interesting is the near-complete absence of counties with flood events in the less than 10% below poverty line category. The actual number for the one particular county that qualifies that had a flood event is around 5%. The other categories have more or less a similar number of floods, although its worth pointing up that the second lowest poverty level is also associated with having generally lower levels of Assistance Declarations from FEMA - i.e they have fewer high severity floods than poorer areas. Kentucky is the only state with counties affected by floods whose population is more than 30% people/households below the poverty line. And Tennessee doesn't have any counties affected by floods in 2020 and 2021 with greater than 20% of its population below the poverty line. 
+
+Starting with Figure 1: Barring the 10-15% below poverty level group, it would appear that the sensitivity of financial assistance to changes in severity are largely the same across all our poverty levels as far as Individual and Household Assistance is concerned. The 'spread of 'shadow' is indicative of the uncertainty in the trend so more data might certainly change this for the better or the worse. The cynic would be inclined to say that equal progression in financial assistance relative to severity across various poverty levels would be akin to a uniform tax rate, which is to say, regressive. 
+
+Figure 2: This one is largely more indicative of assistance to roads, government buildings, and rebuilding efforts of that ilk and therefore not particularly informative of financial assistance as far as poverty goes. On a base level though, if one were to make the contention that poorer areas have less infrastructure, we would expect to see significantly fewer requests for public assistance for poorer areas. Clearly this isn't true. 
+
+Figure 3:
