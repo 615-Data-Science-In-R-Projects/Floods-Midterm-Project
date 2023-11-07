@@ -1,5 +1,5 @@
 ---
-title: "Floods - Deluge, Disparity and Disaster"
+title: "Floods - Midterm Project"
 author: "Ajay Krishnakumar"
 date: 2023 Nov 6
 format: pdf
@@ -296,7 +296,7 @@ ggplot(state_poverty_level, aes(State, `Below poverty level`))+
   labs(title="Percent of population below poverty level by State", 
        y= "Percent below poverty level", x= "State")+
   geom_hline(yintercept=11.5, color='red')+
-  annotate("text", x="OHIO",
+  annotate("text", x="MISSOURI",
            y=11.8, label="Nation-wide Percent below poverty level = 11.5%")+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
   
@@ -529,14 +529,14 @@ Moreover the federal government's response is generally distributed evenly relat
 
 A few other points:
 
- - Interestingly, it appears that landlocked US states are most affected by floods - from rainfall and not from coastal floods.
+ - Interestingly, it appears that landlocked US states are most affected by floods. I would've expected coastal states to flood more. 
 
-\- We haven't been able to conclude whether property Damage is largely related to housing or infrastructure. This is a question that beggars answering and future analysis with relevant datasets might go some way to answering this.
+ - We haven't been able to conclude whether property Damage is largely related to housing or infrastructure. This is a question that beggars answering and future analysis with relevant datasets might go some way to answering this.
 
-\- What affects crop damages in floods? Is it the severity of the flood? Or the sensitivity of the crop to floods? In a world of changing climates, it might be an important question to answer - which crops are most resistant to more and less water than they are normally accustomed.
+ - What affects crop damages in floods? Is it the severity of the flood? Or the sensitivity of the crop to floods? In a world of changing climates, it might be an important question to answer - which crops are most resistant to more and less water than they are normally accustomed.
 
 I think it would also be useful to extend the analysis done above to:
 
- - Other states. Including in this would have confused the insights and distracted from teh findings - such as they are.
+ - Other states. Including this above would have confused the insights and distracted from the findings - such as they are - but that's not to say that this isn't useful for later. 
 
-\- Over time: How have flood incidents, severity and their impact on poorer communities changed over time? This is a really important question to answer and this EDA is barely a token acknowledgement of that.
+ - Over time: How have flood incidents, severity and their impact on poorer communities changed over time? This is a really important question to answer and this EDA is barely a token acknowledgement of that.
