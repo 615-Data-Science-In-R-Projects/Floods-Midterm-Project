@@ -278,9 +278,9 @@ Let's start by visualizing how poverty varies across the states in question. We 
 
 ```{r}
 #| echo: false
-state_list<- c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
-               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
-               "FLORIDA", "TEXAS")
+state_list<- c("KENTUCKY","ALABAMA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "VIRGINIA", "OHIO","LOUISIANA", "ILLINOIS","WEST VIRGINIA",
+               "MISSISSIPI", "GEORGIA")
                
 
 
@@ -306,10 +306,9 @@ We can see that most of these states, barring Iowa, are above the US Percent of 
 #| echo: false
 #| wawrning: false
 #| message: false
-state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
-               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
-               "FLORIDA", "TEXAS")
-
+state_list<-  state_list<- c("KENTUCKY","ALABAMA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "VIRGINIA", "OHIO","LOUISIANA", "ILLINOIS","WEST VIRGINIA",
+               "MISSISSIPI", "GEORGIA")
 
 poverty_noNA<- floods_fema_census |> filter(
   is.na(`Estimate Below poverty level `)==FALSE& 
@@ -332,19 +331,17 @@ ggplot(poverty_level, aes(State, poverty_diff))+
 There are some states where the areas affected by floods are poorer on average than the rest of the state. Equivalently there are some where the flooded areas are less poor. But this graph is not in itself all that informative. There are also many differences between states, their livelihoods, the distribution of the population. It might make sense to narrow our EDA to some states that share not just apparently similar qualities from a socio-economic standpoint but also in the way floods have affected them in 2020-2021.
 
 So: Are there any trends in deaths, property damage and crop damage between the two groups of states we've created above? Can this help us?
-We'll take Missouri, Tennessee and Kentucky in the group of states where the flooded areas do not contain a lower percentage of people below the poverty level because the margins for them are within the limit where errors in measurement would swing them to be in the other group.
 
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
 #poor is a misnomer here and refers to the flooded areas in each state, not the poverty of the state overall
-state_list<-  c("KENTUCKY","SOUTH DAKOTA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
-               "ILLINOIS", "IOWA","NEW YORK", "INDIANA","WEST VIRGINIA",
-               "FLORIDA", "TEXAS")
+state_list<-  state_list<- c("KENTUCKY","ALABAMA", "TENNESSEE", "ARKANSAS", "MISSOURI", 
+               "VIRGINIA", "OHIO","LOUISIANA", "ILLINOIS","WEST VIRGINIA",
+               "MISSISSIPI", "GEORGIA")
 
-poor_list<-c( "ARKANSAS","ILLINOIS", "INDIANA", "IOWA", "TEXAS", "TENNESSEE",
-              "MISSOURI", "KENTUCKY","WEST VIRGINIA")
+poor_list<-c( "ARKANSAS","ILLINOIS","VIRGINIA", "OHIO", "WEST VIRGINIA")
 
 #Adding indirect and direct deaths together to get deaths because its not clear what the distinction between indirect and direct deaths is. 
 
@@ -404,9 +401,9 @@ The crop damage graph is almost immediately indicative of which states are more 
 
 The deaths from floods in 2020-2021 were zero in most states which is great news. However it appears Tennessee really suffered, with close to 20 deaths from one flood alone. This wasn't really worth visualizing as a graph so I've plaed this information here. 
 
-By far the more interesting graph is the one detailing property damage.It makes sense that Florida, might have had more property damage, being more densely populated than some of these other states and more urbanized and also considering the generally higher property values there. West Virginia had a lot of floods but had lower property damage levels than Florida's two floods and its mean property damage is the lowest of all these states. 
+By far the more interesting graph is the one detailing property damage. West Virginia had a lot of floods but had lower property damage levels than Virginia  and its mean property damage is the lowest of all these states. 
 
-Tennessee, West Virginia and Kentucky are the most interesting of this bunch. All three have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
+Tennessee, West Virginia, Virginia, Louisiana,Ohio and Kentucky are the most interesting of this bunch. All have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
 
 ### EDA - Diluvial Details
 
@@ -416,10 +413,10 @@ So, what questions has our initial exploration left us with:
 -   Is property damage damage largely a function of damage to individual homes or to infrastructure?
 
 ```{r}
-#|echo: false
-#|warning: false
-#|message: false
-poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
+#| echo: false
+#| warning: false
+#| message: false
+poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY", "OHIO", "VIRGINIA", "LOUISIANA"))
 
 poverty_analysis<- poverty_analysis |> mutate(percent_poor=
     (`Estimate Below poverty level `/`Estimate Total Population`)*100)|> 
@@ -442,7 +439,7 @@ A brief caveat here is that while we have housing assistance amounts, we don't h
 #| echo: false
 #| warning: false
 #| message: false
-poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY"))
+poverty_analysis<-floods_fema_census |> filter(State %in% c("TENNESSEE", "WEST VIRGINIA", "KENTUCKY", "OHIO", "VIRGINIA", "LOUISIANA"))
 
 poverty_analysis_severity<- poverty_analysis|> group_by(County) |> summarise(percent_poor =sum(`Estimate Below poverty level `)/sum(`Estimate Total Population`)*100,
               State = State,
@@ -463,7 +460,7 @@ poverty_analysis_severity<- poverty_analysis_severity |> mutate(poverty =
 #IHA
 ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=iha_amount,color=State))+
-geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 1: Individual Household Program Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
@@ -474,7 +471,7 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
 #PA
 ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=pa_amount,color=State))+
-geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 2: Public Assistance \n by County and Poverty",
   x=" Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
@@ -486,7 +483,7 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
 #Housing Assistance
 ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
               y=ha_amount,color=State))+
-geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~poverty)+labs(
+geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 3: Housing Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
