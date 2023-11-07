@@ -449,6 +449,8 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
 
+
+
 #PA
 ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
               y=pa_amount,color=State))+
@@ -457,6 +459,8 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
   x="Fig2: Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
+
+
 
 
 #Housing Assistance
@@ -468,11 +472,3 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="#FADAF9")+facet_wrap(~p
   caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red"))
 ```
-
-
-
-
-
-
-
-
