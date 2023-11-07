@@ -464,7 +464,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 1: Individual Household Program Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Individual/Household Assistance (log$)",
-  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505","#A0970C"))
 
 
@@ -475,7 +475,7 @@ ggplot(poverty_analysis_severity, aes(x=individual_housing_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 2: Public Assistance \n by County and Poverty",
   x=" Number of PA Declarations",y="Amount of Public Assistance Porgram Obligations (log$)",
-  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 
 
@@ -487,7 +487,7 @@ ggplot(poverty_analysis_severity, aes(x=public_assistance_declared,
 geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
   title="Fig 3: Housing Assistance \n by County and Poverty",
   x="Number of IHA Declarations",y="Amount of Housing Assistance (log$)",
-  caption="Each point is a separate county\n Trend lines show if amont of assistance generally increases with number of declarations"
+  caption="Each point is a separate county\n Trend lines show if amount of assistance generally increases with number of declarations"
 )+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 ```
 Let's break this down. Across all three of the above graphs, moving along the x axis, I would contend, is a measure of the severity of the flood. Moving along the y axis indicated the magnitude of financial assistance - the response. You'd hope there's a positive slope to the trend line I've inserted and mercifully for humanity, this is the case basically in all of the above instances. The steeper the trend line, generally, the larger the assistance for an increase in severity. Naively, one might expect that this rises as the percentage of population below the poverty level increases. 
@@ -503,6 +503,21 @@ Figure 3: The magnitude of relative response remains the same and I point you to
 So let's have a quick look at whether property damage is a function of damage to homes or infrastructure:
 
 ```{r}
-ggplot(poverty_analysis_severity, aes(x=))
+#| echo: false
+#| warning: false
+#| message: false
+ggplot(poverty_analysis_severity, aes(x=pa_amount, y=log(DAMAGE_PROPERTY), color=State))+
+  geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_wrap(~poverty)+labs(
+  title="Fig 4: Public Assistance vs Property Damage",
+  x="Public Assistance (log $)",y="Property Damage (log $)",
+  caption="Each point is a separate county\n Trend lines show if damage generally increases with amount of public assistance"
+)+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))+ylim(0,12)
+
 ```
+
+We can see from figure 4 that there generally isn't any relationship between property damage and Public Assistance. In fact the property damages are often 0(hence their peeking from the bottom of the graph) despite large public assistance. 
+
+The sheer number of 0's for declared property damage likely means we can't tell if housing assistance and property damage are related either. 
+
+## Conclusions
 
