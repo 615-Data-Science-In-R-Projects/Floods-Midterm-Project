@@ -407,7 +407,7 @@ The deaths from floods in 2020-2021 were zero in most states which is great news
 
 By far the more interesting graph is the one detailing property damage. West Virginia had a lot of floods but had lower property damage levels than Virginia and its mean property damage is the lowest of all these states.
 
-Tennessee, West Virginia, Virginia, Louisiana,Ohio and Kentucky are the most interesting of this bunch. All have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? It might make sense to narrow focus again to Tennessee, West Virginia and Kentucky, and look at differences in poverty levels across their counties to see what we can find.
+Tennessee, West Virginia, Virginia, Louisiana,Ohio and Kentucky are the most interesting of this bunch. All have had a number of floods which span a large range of property damage values. Could this be perhaps because the floods have occurred across both rural and urban areas? Or is it perhaps because valuable infrastructure was damaged in the floods - roads, farming equipment and their like? It might make sense to narrow focus again to these states and look at differences in poverty levels across their counties to see what we can find.
 
 ### EDA - Diluvial Details
 
@@ -495,7 +495,7 @@ geom_point()+geom_smooth(formula=y~x,method="lm", color="navy", lwd=0.5)+facet_w
 )+scale_color_manual(values=c("#19C5E4","orange","red", "#A169DD","#257505"))
 ```
 
-Let's break this down. Across all three of the above graphs, moving along the x axis, I would contend, is a measure of the severity of the flood. Moving along the y axis indicated the magnitude of financial assistance - the response. You'd hope there's a positive slope to the trend line I've inserted and mercifully for humanity, this is the case basically in all of the above instances. The steeper the trend line, generally, the larger the assistance for an increase in severity. Naively, one might expect that this rises as the percentage of population below the poverty level increases.
+Let's break this down. Across all three of the above graphs, moving along the x axis, I would contend, is a measure of the severity of the flood. Moving along the y axis indicates the magnitude of financial assistance - the response. You'd hope there's a positive slope to the trend line I've inserted, and mercifully for humanity, this is the case basically in all of the above instances. The steeper the trend line, generally, the larger the assistance for an increase in severity. Naively, one might expect that this rises as the percentage of population below the poverty level increases.
 
 What is interesting is the near-complete absence of counties with flood events in the less than 10% below poverty line category. The other categories have more or less a similar number of floods, although its worth pointing up that the second lowest poverty level is also associated with having generally lower levels of Assistance Declarations from FEMA - i.e they have fewer high severity floods than poorer areas. Kentucky is the only state with counties affected by floods whose population is more than 30% people/households below the poverty line. And Tennessee doesn't have any counties affected by floods in 2020 and 2021 with greater than 20% of its population below the poverty line.
 
@@ -525,3 +525,23 @@ We can see from figure 4 that there generally isn't any relationship between pro
 The sheer number of 0's for declared property damage likely means we can't tell if housing assistance and property damage are related either.
 
 ## Conclusions
+
+Does it appear that floods disproportionately affect poorer communities in the US and amongst those states we've narrowed our analysis to? 
+
+It's hard to say given only two years of data. But we can certainly say that communities with lower levels of poverty are affected less often and less severely. 
+
+Moreover the federal governments response is generally distributed evenly relative to severity of the flood event and regardless of the poverty levels of the community affected. I would argue that the overall effect of this is to reinforce the income and wealth divides, particularly in places where flood incidents occur frequently. 
+
+A few other points:
+* Interestingly, it appears that landlocked US states are most affected by floods - from rainfall and not from coastal floods. 
+* We haven't been able to conlcude whether property Damage is largely related to housing or infrastructure. This is a question that beggars answering and future analysis with relevant datasets might go some way to answering this. 
+* What affects crop damages in floods? Is it the severity of the flood? Or the sensitivity of the crop to floods? In a world of changing climates, it might be an important question to answer - which crops are most resistant to more and less water than they are normally accustomed. 
+
+I think it would also be useful to extend the analysis done above to: 
+* Other states. Including in this would have confused the insights and distracted from teh findings - such as they are. 
+* Over time: How have flood incidents, severity and their impact on poorer communities changed over time? This is a really important question to answer and this EDA is barely a token acknowledgement of that.
+
+
+
+
+
